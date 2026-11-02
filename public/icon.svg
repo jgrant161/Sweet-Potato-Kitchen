@@ -1,9 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="110" fill="#ffb067"/>
   <ellipse cx="256" cy="400" rx="190" ry="40" fill="#fff" opacity=".9"/>
-  <path d="M60 270 C 80 170, 432 170, 452 270 C 432 370, 80 370, 60 270 Z" fill="#b9583c"/>
-  <path d="M150 232 C 196 206, 316 206, 362 232 C 330 270, 182 270, 150 232Z" fill="#f6a03c"/>
-  <circle cx="200" cy="300" r="14" fill="#fff"/><circle cx="312" cy="300" r="14" fill="#fff"/>
+  <path d="M52 290 C 68 210, 170 160, 256 164 C 342 168, 428 204, 476 238 C 428 272, 346 350, 256 358 C 170 364, 86 348, 52 290 Z" fill="#c4663d"/><path d="M96 262 C 150 216, 200 200, 250 202" stroke="#fff" stroke-width="14" fill="none" stroke-linecap="round" opacity=".3"/>
+    <circle cx="200" cy="300" r="14" fill="#fff"/><circle cx="312" cy="300" r="14" fill="#fff"/>
   <circle cx="204" cy="302" r="7" fill="#2b1d16"/><circle cx="316" cy="302" r="7" fill="#2b1d16"/>
   <path d="M232 322 Q256 344 280 322" stroke="#5a2a1a" stroke-width="10" fill="none" stroke-linecap="round"/>
   <path d="M256 180 c-50 -26 -60 -70 -18 -80 c14 36 24 54 18 80z" fill="#5db36a"/>

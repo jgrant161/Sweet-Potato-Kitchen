@@ -140,12 +140,14 @@
 
   /* ------------------------------------------------------------------ food */
   const COOK = {
-    raw:    { skin: '#b9583c', inside: '#f6a03c', edge: '#e38a2a', light: '#ffc98a' },
-    baked:  { skin: '#7a3b22', inside: '#f08a2a', edge: '#b85a1a', light: '#ffb060', steam: true },
-    boiled: { skin: '#cf856a', inside: '#f8b462', edge: '#e9a04a', light: '#ffd8a0', steam: true, drops: true },
-    fried:  { skin: '#9c4a24', inside: '#e9912e', edge: '#a8521a', light: '#ffc070', crisp: true, spark: true },
-    micro:  { skin: '#b46548', inside: '#f3a243', edge: '#d78a30', light: '#ffcf8a', steam: true },
+    raw:    { skin: '#c4663d', skinDark: '#9e4f2d', inside: '#f6a44a', edge: '#e38a2a', light: '#fbc27d' },
+    baked:  { skin: '#8e4a2a', skinDark: '#5e2f1b', inside: '#f08a2a', edge: '#a8521a', light: '#ffb060', steam: true, char: true },
+    boiled: { skin: '#d58f6e', skinDark: '#b06a4c', inside: '#f8b462', edge: '#e9a04a', light: '#ffd8a0', steam: true, drops: true },
+    fried:  { skin: '#b85d33', skinDark: '#86401f', inside: '#ec9330', edge: '#9a4a1c', light: '#ffc070', crisp: true, spark: true, char: true },
+    micro:  { skin: '#c56f45', skinDark: '#9a5231', inside: '#f3a243', edge: '#d78a30', light: '#ffcf8a', steam: true },
   };
+  // one tapered sweet-potato outline, reused for the whole potato and the halves
+  const SPINDLE = 'M44 118 C 52 84, 96 62, 136 64 C 180 66, 230 80, 266 96 C 232 112, 186 146, 136 152 C 96 156, 52 146, 44 118 Z';
   const FORMS = ['whole', 'halves', 'slices', 'fries', 'cubes', 'mash'];
 
   // deterministic scatter so toppings stay put between renders
@@ -154,11 +156,11 @@
     return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
   }
   const REGION = {
-    whole:  { x0: 75, x1: 225, y0: 86, y1: 128 },
-    halves: { x0: 45, x1: 255, y0: 84, y1: 130 },
-    slices: { x0: 40, x1: 260, y0: 84, y1: 134 },
-    fries:  { x0: 70, x1: 230, y0: 70, y1: 140 },
-    cubes:  { x0: 55, x1: 245, y0: 78, y1: 138 },
+    whole:  { x0: 80, x1: 230, y0: 80, y1: 134 },
+    halves: { x0: 50, x1: 250, y0: 84, y1: 132 },
+    slices: { x0: 45, x1: 255, y0: 84, y1: 134 },
+    fries:  { x0: 75, x1: 225, y0: 76, y1: 140 },
+    cubes:  { x0: 70, x1: 230, y0: 82, y1: 138 },
     mash:   { x0: 85, x1: 215, y0: 62, y1: 96 },
   };
 
@@ -188,35 +190,54 @@
     const form = food.form;
     let g = '';
     const spots = (n, box) => { const rnd = seeded('spots' + form); let s = ''; for (let i = 0; i < n; i++) s += `<ellipse cx="${box.x0 + rnd() * (box.x1 - box.x0)}" cy="${box.y0 + rnd() * (box.y1 - box.y0)}" rx="3" ry="2" fill="#000" opacity=".12"/>`; return s; };
+    const gid = 'skin-' + food.cook;
+    const skinGrad = `<defs><radialGradient id="${gid}" cx="38%" cy="32%" r="80%"><stop offset="0" stop-color="${c.skin}"/><stop offset="1" stop-color="${c.skinDark}"/></radialGradient></defs>`;
+    const flecks = (n, x0, x1, y0, y1, seed) => { // crispy brown bits on fried / baked food
+      if (!c.char) return ''; const rnd = seeded('char' + seed + form); let o = '';
+      for (let i = 0; i < n; i++) { const fx = x0 + rnd() * (x1 - x0), fy = y0 + rnd() * (y1 - y0); o += `<rect x="${fx}" y="${fy}" width="${5 + rnd() * 7}" height="3" rx="1.5" fill="#6b2f12" opacity=".55" transform="rotate(${rnd() * 180} ${fx} ${fy})"/>`; }
+      return o; };
     switch (form) {
       case 'whole': {
-        const body = 'M62 118 C 70 70, 140 52, 190 66 C 232 78, 252 100, 238 128 C 224 156, 150 164, 104 150 C 72 140, 56 134, 62 118 Z';
-        g += `<path d="M62 118 c-12 -2 -20 4 -26 12" stroke="${c.skin}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
-        g += `<path d="M238 126 c10 2 16 8 18 16" stroke="${c.skin}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
-        g += `<path d="${body}" fill="${c.skin}"/>`;
-        g += `<path d="M88 104 c 22 -20 60 -28 104 -22" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity=".22"/>`;
-        g += spots(8, { x0: 90, x1: 225, y0: 84, y1: 140 });
-        if (food.cook !== 'raw') g += `<path d="M104 96 C 130 76, 190 74, 218 92 C 200 112, 132 118, 104 96Z" fill="${c.inside}"/><path d="M116 94 c22 -10 64 -12 90 -4" stroke="${c.light}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".8"/>`;
-        if (c.crisp) g += `<path d="${body}" fill="none" stroke="${c.edge}" stroke-width="6" stroke-dasharray="14 10" opacity=".6"/>`;
+        g += skinGrad;
+        g += `<path d="${SPINDLE}" fill="url(#${gid})"/>`;
+        g += `<path d="M62 104 C 100 80, 150 74, 230 86 M64 130 C 110 144, 180 136, 244 104" stroke="${c.skinDark}" stroke-width="3" fill="none" stroke-linecap="round" opacity=".35"/>`;
+        g += `<path d="M70 102 C 96 84, 124 76, 156 76" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" opacity=".3"/>`;
+        g += spots(9, { x0: 70, x1: 240, y0: 80, y1: 142 });
+        if (food.cook !== 'raw') g += `<path d="M94 94 C 130 74, 192 76, 228 90 C 198 106, 136 110, 94 94Z" fill="${c.inside}"/><path d="M110 92 c24 -10 68 -12 100 -4" stroke="${c.light}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".85"/>`;
+        if (c.crisp) g += `<path d="${SPINDLE}" fill="none" stroke="${c.edge}" stroke-width="5" stroke-dasharray="12 10" opacity=".55"/>`;
         break; }
       case 'halves':
-        for (const x of [92, 208]) g += `<g transform="rotate(${x < 150 ? -8 : 8} ${x} 110)"><ellipse cx="${x}" cy="110" rx="56" ry="38" fill="${c.inside}" stroke="${c.skin}" stroke-width="10"/><ellipse cx="${x}" cy="110" rx="34" ry="20" fill="none" stroke="${c.light}" stroke-width="3" opacity=".8"/><ellipse cx="${x}" cy="110" rx="12" ry="7" fill="${c.edge}" opacity=".5"/></g>`;
+        g += skinGrad;
+        [[-44, -6], [40, 6]].forEach(([dx, rot], i) => {
+          g += `<g transform="translate(${dx} 0) rotate(${rot} 155 108) translate(155 108) scale(.78 .74) translate(-155 -108)">
+            <path d="${SPINDLE}" fill="${c.inside}" stroke="url(#${gid})" stroke-width="12"/>
+            <path d="${SPINDLE}" fill="none" stroke="${c.light}" stroke-width="3" opacity=".8" transform="translate(155 108) scale(.72) translate(-155 -108)"/>
+            <ellipse cx="150" cy="108" rx="22" ry="10" fill="${c.edge}" opacity=".35"/>${flecks(5, 80, 230, 84, 132, 'h' + i)}</g>`;
+        });
         break;
       case 'slices':
-        [[56, 108], [104, 118], [150, 104], [196, 118], [244, 108]].forEach(([x, y], i) => {
-          g += `<g transform="rotate(${(i - 2) * 6} ${x} ${y})"><circle cx="${x}" cy="${y}" r="32" fill="${c.inside}" stroke="${c.skin}" stroke-width="7"/><circle cx="${x}" cy="${y}" r="18" fill="none" stroke="${c.light}" stroke-width="3" opacity=".8"/><circle cx="${x}" cy="${y}" r="6" fill="${c.edge}" opacity=".5"/></g>`;
+        [[56, 108, -8], [102, 118, 6], [150, 104, -4], [198, 118, 8], [244, 108, -6]].forEach(([x, y, a], i) => {
+          const rnd = seeded('slice' + i); let mottle = '';
+          for (let k = 0; k < 4; k++) mottle += `<ellipse cx="${x - 14 + rnd() * 28}" cy="${y - 14 + rnd() * 28}" rx="${5 + rnd() * 6}" ry="${3 + rnd() * 4}" fill="${c.light}" opacity=".55" transform="rotate(${rnd() * 180} ${x} ${y})"/>`;
+          g += `<g transform="rotate(${a} ${x} ${y})"><circle cx="${x}" cy="${y}" r="32" fill="${c.inside}" stroke="${c.skin}" stroke-width="5"/>${mottle}<circle cx="${x}" cy="${y}" r="20" fill="none" stroke="${c.edge}" stroke-width="2" opacity=".35"/>${flecks(3, x - 24, x + 24, y - 24, y + 24, 's' + i)}</g>`;
         });
         break;
-      case 'fries':
-        [[90, 112, -28], [112, 100, -16], [134, 96, -8], [152, 94, 0], [170, 96, 8], [190, 102, 16], [212, 112, 26], [122, 118, -40], [180, 120, 40]].forEach(([x, y, a]) => {
-          g += `<g transform="rotate(${a} ${x} ${y})"><rect x="${x - 10}" y="${y - 50}" width="20" height="100" rx="7" fill="${c.inside}" stroke="${c.crisp ? c.edge : c.skin}" stroke-width="3"/><rect x="${x - 5}" y="${y - 42}" width="4" height="84" rx="2" fill="${c.light}" opacity=".6"/></g>`;
+      case 'fries': {
+        const fries = [[92, 118, -64], [114, 104, -48], [130, 98, -30], [150, 94, -12], [168, 96, 4], [186, 100, 20], [206, 110, 38], [222, 120, 56], [104, 124, -80], [140, 120, 72], [176, 124, -72], [160, 112, 86], [122, 112, 50]];
+        fries.forEach(([x, y, a], i) => {
+          const rnd = seeded('fry' + i); let bits = '';
+          if (c.char) for (let k = 0; k < 3; k++) bits += `<rect x="${x - 7 + rnd() * 10}" y="${y - 44 + rnd() * 84}" width="4" height="${4 + rnd() * 8}" rx="2" fill="#6b2f12" opacity=".55"/>`;
+          if (food.cook !== 'raw') for (let k = 0; k < 2; k++) bits += `<circle cx="${x - 5 + rnd() * 10}" cy="${y - 40 + rnd() * 80}" r="1.6" fill="#fff" opacity=".8"/>`;
+          g += `<g transform="rotate(${a} ${x} ${y})"><rect x="${x - 7}" y="${y - 50}" width="14" height="100" rx="4" fill="${c.inside}" stroke="${c.crisp || c.char ? c.edge : c.skin}" stroke-width="2.5"/><rect x="${x - 4}" y="${y - 44}" width="3" height="88" rx="1.5" fill="${c.light}" opacity=".7"/>${bits}</g>`;
         });
-        break;
-      case 'cubes':
-        [[80, 100, -10], [118, 92, 8], [156, 90, -6], [194, 96, 12], [226, 108, -8], [98, 130, 14], [138, 128, -12], [176, 126, 6], [212, 134, -14], [60, 128, 10]].forEach(([x, y, a]) => {
-          g += `<g transform="rotate(${a} ${x} ${y})"><rect x="${x - 18}" y="${y - 18}" width="36" height="36" rx="7" fill="${c.inside}" stroke="${c.crisp ? c.edge : c.skin}" stroke-width="3"/><path d="M${x - 10} ${y - 10} h14" stroke="${c.light}" stroke-width="4" stroke-linecap="round" opacity=".8"/></g>`;
+        break; }
+      case 'cubes': {
+        const rnd = seeded('cubes'); const cubes = [];
+        for (let i = 0; i < 17; i++) cubes.push([82 + rnd() * 136, 86 + rnd() * 50, rnd() * 40 - 20, 22 + rnd() * 8]);
+        cubes.sort((a, b) => a[1] - b[1]).forEach(([x, y, a, sz], i) => {
+          g += `<g transform="rotate(${a} ${x} ${y})"><rect x="${x - sz / 2}" y="${y - sz / 2}" width="${sz}" height="${sz}" rx="4" fill="${c.inside}" stroke="${c.edge}" stroke-width="2"/><rect x="${x - sz / 2 + 4}" y="${y - sz / 2 + 3}" width="${sz - 8}" height="4" rx="2" fill="${c.light}" opacity=".8"/>${flecks(2, x - sz / 2, x + sz / 2 - 8, y - sz / 2, y + sz / 2, 'c' + i)}</g>`;
         });
-        break;
+        break; }
       case 'mash':
         g += `<path d="M52 104 h196 c0 50 -40 76 -98 76 s-98 -26 -98 -76z" fill="#9fd1ea"/>`;
         g += `<path d="M72 104 c6 -34 36 -52 78 -52 s72 18 78 52z" fill="${c.inside}"/>`;
