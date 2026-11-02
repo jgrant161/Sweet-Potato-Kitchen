@@ -3,17 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Sweet Potato Kitchen</title>
+  <title>Harrison's Sweet Potato Kitchen</title>
   <meta name="description" content="A gentle, no-rules cooking playground where you chop, bake, boil, fry and mash sweet potatoes and feed them to a hungry friend.">
   <meta name="theme-color" content="#ffb067">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Sweet Potato">
+  <meta name="apple-mobile-web-app-title" content="Harrison's Kitchen">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap">
   <link rel="stylesheet" href="style.css">
+  <script>
+    // Size the app from the real window height. iOS home-screen apps report the full screen
+    // height to CSS even though the status bar takes the top, and Safari's toolbar changes the
+    // visible height, so a measured pixel value is the only thing that is right everywhere.
+    (function () {
+      var set = function () { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); };
+      set();
+      window.addEventListener('resize', set);
+      window.addEventListener('orientationchange', function () { setTimeout(set, 250); setTimeout(set, 600); });
+      if (window.visualViewport) window.visualViewport.addEventListener('resize', set);
+    })();
+  </script>
 </head>
 <body>
   <div id="app">
@@ -50,6 +65,23 @@
 
   </div>
   <div id="particles"></div>
+  <div id="splash">
+    <div class="splash-card">
+      <svg class="splash-potato" viewBox="0 0 512 512" aria-hidden="true">
+        <path d="M52 290 C 68 210, 170 160, 256 164 C 342 168, 428 204, 476 238 C 428 272, 346 350, 256 358 C 170 364, 86 348, 52 290 Z" fill="#c4663d"/>
+        <path d="M96 262 C 150 216, 200 200, 250 202" stroke="#fff" stroke-width="14" fill="none" stroke-linecap="round" opacity=".3"/>
+        <circle cx="200" cy="286" r="14" fill="#fff"/><circle cx="312" cy="286" r="14" fill="#fff"/>
+        <circle cx="204" cy="288" r="7" fill="#2b1d16"/><circle cx="316" cy="288" r="7" fill="#2b1d16"/>
+        <path d="M232 308 Q256 330 280 308" stroke="#5a2a1a" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M256 180 c-50 -26 -60 -70 -18 -80 c14 36 24 54 18 80z" fill="#5db36a"/>
+        <path d="M260 180 c50 -26 60 -70 18 -80 c-14 36 -24 54 -18 80z" fill="#7fc98a"/>
+      </svg>
+      <h1><span>Harrison's</span><br>Sweet Potato Kitchen</h1>
+      <button id="play" aria-label="Play">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
   <script src="game.js"></script>
   <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>
 </body>

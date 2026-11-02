@@ -572,6 +572,16 @@
     let lastTouch = 0;
     document.addEventListener('touchend', (e) => { const now = Date.now(); if (now - lastTouch < 350) e.preventDefault(); lastTouch = now; }, { passive: false });
 
+    // title screen: one tap anywhere starts the game (and unlocks sound on iOS)
+    const splash = $('#splash');
+    const start = () => {
+      if (splash.classList.contains('gone')) return;
+      FX.init(); splash.classList.add('gone');
+      setTimeout(() => { FX.play('hello'); flash(el.character, 'bounce', 700); say('👋', 1000); }, 250);
+    };
+    splash.addEventListener('click', start);
+    splash.addEventListener('touchend', (e) => { e.preventDefault(); start(); }, { passive: false });
+
     renderCharacter(); renderFood(); renderShelf(); scheduleNudge();
   }
   build();

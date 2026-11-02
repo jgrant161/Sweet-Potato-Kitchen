@@ -31,9 +31,8 @@ button { font: inherit; color: inherit; border: 0; background: none; padding: 0;
 svg { display: block; }
 
 #app {
-  height: 100vh;                 /* oldest browsers */
-  height: -webkit-fill-available; /* older iOS Safari: the visible area, not the area under the toolbar */
-  height: 100dvh;                /* modern browsers: tracks the visible height as Safari's toolbar shows/hides */
+  height: 100vh;
+  height: var(--app-h, 100vh); /* measured in index.html; correct on iOS home-screen apps and under Safari's toolbar */
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) minmax(0, 1.15fr) auto auto;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
@@ -316,3 +315,38 @@ svg { display: block; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ---------- title screen ---------- */
+#splash {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center;
+  background:
+    radial-gradient(circle at 20% 10%, #fff 0 6px, transparent 7px) 0 0/80px 80px,
+    linear-gradient(#ffe3c2, var(--peach));
+  transition: opacity .45s, visibility .45s;
+}
+#splash.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-card {
+  display: grid; justify-items: center; gap: 10px;
+  padding: 24px 28px 28px; margin: 16px;
+  background: rgba(255,255,255,.85); border-radius: 36px;
+  box-shadow: 0 10px 0 rgba(120,60,10,.18);
+  text-align: center; max-width: 420px;
+}
+.splash-potato { width: min(60vw, 240px); animation: splashBob 2.4s ease-in-out infinite; }
+#splash h1 {
+  margin: 0; font-family: "Baloo 2", "Arial Rounded MT Bold", "Nunito", system-ui, sans-serif;
+  font-weight: 800; font-size: clamp(26px, 7vw, 40px); line-height: 1.05; color: var(--brown);
+}
+#splash h1 span { color: #d95f2b; font-size: 1.25em; }
+#play {
+  margin-top: 8px; width: 96px; height: 96px; border-radius: 50%;
+  background: var(--mint-dark); color: #fff;
+  box-shadow: 0 8px 0 #5fa385;
+  display: grid; place-items: center;
+  animation: playPulse 1.4s ease-in-out infinite;
+}
+#play svg { width: 56px; height: 56px; margin-left: 6px; }
+#play:active { transform: translateY(6px); box-shadow: 0 2px 0 #5fa385; }
+@keyframes splashBob { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
+@keyframes playPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }

@@ -1,4 +1,4 @@
-# Sweet Potato Kitchen 🍠
+# Harrison's Sweet Potato Kitchen 🍠
 
 A gentle, Toca-Kitchen-style cooking playground about one very important ingredient: **sweet potatoes**.
 
@@ -6,6 +6,7 @@ There are no rules, timers, scores or wrong answers. Every tap makes something f
 
 ## How to play
 
+0. **Tap the big green play button** on the title screen.
 1. **Tap the fridge** to get a sweet potato.
 2. **Tap a tool** (or drag the potato onto it):
    - 🔪 knife: whole → halves → slices → fries → cubes
