@@ -17,6 +17,7 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; height: 100%; overflow: hidden; }
+html { height: -webkit-fill-available; }
 body {
   font-family: "Baloo 2", "Nunito", "Arial Rounded MT Bold", "Segoe UI", system-ui, sans-serif;
   background: var(--cream);
@@ -30,8 +31,9 @@ button { font: inherit; color: inherit; border: 0; background: none; padding: 0;
 svg { display: block; }
 
 #app {
-  height: 100dvh;
-  height: 100vh;
+  height: 100vh;                 /* oldest browsers */
+  height: -webkit-fill-available; /* older iOS Safari: the visible area, not the area under the toolbar */
+  height: 100dvh;                /* modern browsers: tracks the visible height as Safari's toolbar shows/hides */
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) minmax(0, 1.15fr) auto auto;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
