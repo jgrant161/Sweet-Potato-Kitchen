@@ -102,7 +102,7 @@
 
   /* ------------------------------------------------------------------ characters */
   const CHARS = [
-    { name: 'Chef', skin: '#f3d3bd', nose: '#e2b094', pupil: '#4d6b86', rx: 84, ry: 92, cy: 130, toothy: true,
+    { name: 'Harrison', skin: '#f3d3bd', nose: '#e2b094', pupil: '#4d6b86', rx: 84, ry: 92, cy: 130, toothy: true,
       behind: `<path d="M8 270 C 14 222, 60 204, 120 204 C 180 204, 226 222, 232 270 Z" fill="#1f2a5a"/><path d="M84 206 q36 22 72 0" stroke="#2f3d78" stroke-width="5" fill="none" stroke-linecap="round"/>
         <g transform="translate(120 244)"><rect x="-26" y="-9" width="52" height="18" rx="5" fill="#fff"/><text x="0" y="5" font-family="Arial Rounded MT Bold, Arial, sans-serif" font-weight="900" font-size="13" text-anchor="middle" fill="#1f2a5a">GOLF</text></g>`,
       hair: `<path d="M34 120 C 34 60, 78 34, 124 36 C 172 38, 208 64, 206 118 C 196 96, 182 86, 166 84 C 158 92, 148 86, 140 92 C 128 84, 112 90, 100 86 C 84 86, 62 96, 52 110 C 46 114, 40 118, 34 120 Z" fill="#8a6a4a"/><path d="M62 82 C 86 58, 140 52, 186 70" stroke="#a2805e" stroke-width="6" fill="none" stroke-linecap="round" opacity=".7"/>
