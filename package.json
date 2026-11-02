@@ -1,0 +1,14 @@
+{
+  "name": "sweet-potato-kitchen",
+  "version": "1.0.0",
+  "description": "A gentle Toca-style cooking playground about sweet potatoes.",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

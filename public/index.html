@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Sweet Potato Kitchen</title>
+  <meta name="description" content="A gentle, no-rules cooking playground where you chop, bake, boil, fry and mash sweet potatoes and feed them to a hungry friend.">
+  <meta name="theme-color" content="#ffb067">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Sweet Potato">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <header id="top">
+      <div id="chars" aria-label="Choose who is hungry"></div>
+      <div id="shelf" aria-label="Dishes you have made"></div>
+      <button id="mute" class="round" aria-label="Sound on or off">
+        <svg viewBox="0 0 24 24" class="snd-on"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" class="snd-off"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <section id="stage">
+      <div id="character" role="button" aria-label="Feed me!"></div>
+      <div id="bubble"></div>
+    </section>
+
+    <section id="counter">
+      <div id="plate"></div>
+      <div id="food" role="button" aria-label="Your sweet potato"></div>
+      <div id="overlay"></div>
+      <button id="fridge" class="big" aria-label="Get a sweet potato">
+        <div class="fridge-door">
+          <span class="handle"></span>
+          <svg viewBox="0 0 100 60" class="fridge-potato"><path d="M10 30c5-14 75-14 80 0-5 14-75 14-80 0z" fill="#c25e3b"/><path d="M28 24c8-3 14 3 20 1s11-5 20 0" stroke="#e2805c" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/></svg>
+        </div>
+        <span class="fridge-label">tap!</span>
+      </button>
+    </section>
+
+    <nav id="toppings" aria-label="Toppings"></nav>
+    <nav id="tools" aria-label="Kitchen tools"></nav>
+
+  </div>
+  <div id="particles"></div>
+  <script src="game.js"></script>
+  <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>
+</body>
+</html>

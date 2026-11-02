@@ -1,0 +1,16 @@
+# One-click deploy to Render: https://render.com/docs/blueprint-spec
+# Static site (free tier). Render serves everything in ./public as-is.
+services:
+  - type: web
+    name: sweet-potato-kitchen
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: ./public
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=600
+    routes:
+      - type: rewrite
+        source: /
+        destination: /index.html
