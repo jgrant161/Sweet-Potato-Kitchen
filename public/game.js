@@ -102,6 +102,11 @@
 
   /* ------------------------------------------------------------------ characters */
   const CHARS = [
+    { name: 'Chef', skin: '#f3d3bd', nose: '#e2b094', pupil: '#4d6b86', rx: 84, ry: 92, cy: 130, toothy: true,
+      behind: `<path d="M8 270 C 14 222, 60 204, 120 204 C 180 204, 226 222, 232 270 Z" fill="#1f2a5a"/><path d="M84 206 q36 22 72 0" stroke="#2f3d78" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g transform="translate(120 244)"><rect x="-26" y="-9" width="52" height="18" rx="5" fill="#fff"/><text x="0" y="5" font-family="Arial Rounded MT Bold, Arial, sans-serif" font-weight="900" font-size="13" text-anchor="middle" fill="#1f2a5a">GOLF</text></g>`,
+      hair: `<path d="M34 120 C 34 60, 78 34, 124 36 C 172 38, 208 64, 206 118 C 196 96, 182 86, 166 84 C 158 92, 148 86, 140 92 C 128 84, 112 90, 100 86 C 84 86, 62 96, 52 110 C 46 114, 40 118, 34 120 Z" fill="#8a6a4a"/><path d="M62 82 C 86 58, 140 52, 186 70" stroke="#a2805e" stroke-width="6" fill="none" stroke-linecap="round" opacity=".7"/>
+        <path d="M64 92 q20 -10 40 -2 M136 90 q20 -8 40 2" stroke="#6b4f36" stroke-width="5" fill="none" stroke-linecap="round"/>` },
     { name: 'Pip', skin: '#f7cdb0', nose: '#3bb0c9', rx: 92, ry: 100,
       hair: `<path d="M26 150 C 22 46, 218 46, 214 150 L 198 150 C 198 110, 182 94, 164 92 C 150 106, 90 106, 76 92 C 58 94, 42 110, 42 150 Z" fill="#2b2222"/><path d="M26 150 c0 30 8 40 16 40 l0 -46z M214 150 c0 30 -8 40 -16 40 l0 -46z" fill="#2b2222"/>` },
     { name: 'Momo', skin: '#5fb0ee', nose: '#b58cf2', rx: 96, ry: 96,
@@ -116,19 +121,21 @@
     const eye = (x, side) => `
       <g class="eye ${side}" transform="translate(${x} 112)">
         <ellipse rx="18" ry="20" fill="#fff"/>
-        <circle class="pupil" cx="2" cy="3" r="8" fill="#2b1d16"/>
+        <circle class="pupil" cx="2" cy="3" r="8" fill="${c.pupil || '#2b1d16'}"/>
         <path class="happy" d="M-13 5 Q0 -12 13 5" stroke="#2b1d16" stroke-width="5" fill="none" stroke-linecap="round"/>
         <ellipse class="lid" rx="19" ry="21" fill="${c.skin}"/>
       </g>`;
     return `<svg viewBox="0 0 240 260" xmlns="http://www.w3.org/2000/svg">
       ${c.behind || ''}
-      <ellipse cx="120" cy="140" rx="${c.rx}" ry="${c.ry}" fill="${c.skin}"/>
+      <ellipse cx="120" cy="${c.cy || 140}" rx="${c.rx}" ry="${c.ry}" fill="${c.skin}"/>
       ${c.hair || ''}
       ${eye(84, 'left')}${eye(156, 'right')}
       <path d="M120 128 l-9 18 h18 z" fill="${c.nose}"/>
       <circle cx="64" cy="156" r="12" fill="#ff9aa6" opacity=".55"/><circle cx="176" cy="156" r="12" fill="#ff9aa6" opacity=".55"/>
       <g class="mouth">
-        <g class="smile"><path d="M92 182 Q120 206 148 182" stroke="#5a2a1a" stroke-width="6" fill="none" stroke-linecap="round"/></g>
+        <g class="smile">${c.toothy
+          ? `<path d="M88 178 Q120 212 152 178 Z" fill="#fff" stroke="#5a2a1a" stroke-width="5" stroke-linejoin="round"/><path d="M104 182 v10 M112 184 v14 M120 185 v16 M128 184 v14 M136 182 v10" stroke="#e8e0d8" stroke-width="2"/>`
+          : `<path d="M92 182 Q120 206 148 182" stroke="#5a2a1a" stroke-width="6" fill="none" stroke-linecap="round"/>`}</g>
         <g class="open"><ellipse cx="120" cy="194" rx="30" ry="27" fill="#5a1d1d"/><ellipse cx="120" cy="210" rx="16" ry="10" fill="#ff7a8a"/><rect x="100" y="168" width="40" height="10" rx="3" fill="#fff"/></g>
         <g class="chewing"><ellipse cx="120" cy="190" rx="26" ry="14" fill="#5a1d1d"/><rect x="102" y="177" width="36" height="8" rx="3" fill="#fff"/></g>
         <g class="grin"><path d="M84 180 Q120 236 156 180 Z" fill="#5a1d1d"/><path d="M90 181 h60 v9 H90z" fill="#fff"/><ellipse cx="120" cy="214" rx="14" ry="8" fill="#ff7a8a"/></g>
@@ -174,7 +181,23 @@
         out = `<rect x="${x}" y="${y}" width="32" height="20" rx="4" fill="#ffd94a"/><path d="M${x + 4} ${y + 18} q0 10 6 12 q6 -2 4 -12" fill="#ffe46a" opacity=".9"/><rect x="${x + 4}" y="${y + 3}" width="22" height="5" rx="2" fill="#fff0a8"/>`;
         break; }
       case 'cinnamon': for (let i = 0; i < 18; i++) { const [x, y] = at(); out += `<circle cx="${x}" cy="${y}" r="${2 + rnd() * 1.5}" fill="#7a3b22"/>`; } break;
-      case 'marshmallow': for (let i = 0; i < 6; i++) { const [x, y] = at(); out += `<g transform="rotate(${rnd() * 40 - 20} ${x} ${y})"><rect x="${x - 12}" y="${y - 9}" width="24" height="18" rx="6" fill="#fff" stroke="#ececf4" stroke-width="2"/><ellipse cx="${x}" cy="${y - 5}" rx="7" ry="2" fill="#f4f4fb"/></g>`; } break;
+      case 'marshmallow':
+        for (let i = 0; i < 6; i++) { const [x, y] = at(); out += `<g transform="rotate(${rnd() * 40 - 20} ${x} ${y})"><rect x="${x - 12}" y="${y - 9}" width="24" height="18" rx="6" fill="#fff" stroke="#ececf4" stroke-width="2"/><ellipse cx="${x}" cy="${y - 5}" rx="7" ry="2" fill="#f4f4fb"/></g>`; }
+        // a couple of spare marshmallows on the side of the plate, Texas Roadhouse style
+        out += `<g transform="rotate(-12 262 150)"><rect x="250" y="141" width="22" height="16" rx="5" fill="#fff" stroke="#ececf4" stroke-width="2"/></g><g transform="rotate(20 248 164)"><rect x="236" y="156" width="22" height="16" rx="5" fill="#fff" stroke="#ececf4" stroke-width="2"/></g>`;
+        break;
+      case 'toasted': { // marshmallows that have been through the oven: a melted blanket with golden toasted tops
+        const cx = (r.x0 + r.x1) / 2, cy = (r.y0 + r.y1) / 2, rx = (r.x1 - r.x0) * .42, ry = (r.y1 - r.y0) * .5;
+        out += `<defs><radialGradient id="toast" cx="50%" cy="30%" r="70%"><stop offset="0" stop-color="#fff4de"/><stop offset=".55" stop-color="#f1c98a"/><stop offset="1" stop-color="#b9702a"/></radialGradient></defs>`;
+        out += `<path d="M${cx - rx} ${cy} C ${cx - rx} ${cy - ry * 1.4}, ${cx + rx} ${cy - ry * 1.4}, ${cx + rx} ${cy} C ${cx + rx * 1.1} ${cy + ry * 1.3}, ${cx - rx * 1.1} ${cy + ry * 1.3}, ${cx - rx} ${cy} Z" fill="#fff" opacity=".95"/>`;
+        out += `<path d="M${cx + rx * .4} ${cy + ry * .9} q4 14 -2 20 M${cx - rx * .6} ${cy + ry * .6} q-2 12 2 18" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+        const rows = 3, cols = Math.max(4, Math.round(rx / 11));
+        for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+          const x = cx - rx * .8 + (i + (j % 2) * .5) * (rx * 1.6 / (cols - 1)), y = cy - ry * .55 + j * (ry * .6);
+          if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 > .95) continue;
+          out += `<circle cx="${x}" cy="${y}" r="${7 + rnd() * 2}" fill="url(#toast)"/><path d="M${x - 5} ${y - 2} q5 -6 10 0" stroke="#8a4a1c" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="${.5 + rnd() * .5}"/>`;
+        }
+        break; }
       case 'honey': {
         const y = (r.y0 + r.y1) / 2;
         out = `<path d="M${r.x0} ${y - 8} q25 18 50 0 t50 0 t50 0 t${(r.x1 - r.x0) - 150} 0" stroke="#ffb833" stroke-width="6" fill="none" stroke-linecap="round" opacity=".9"/><path d="M${r.x0 + 30} ${y + 2} q4 10 0 14 M${r.x1 - 40} ${y} q4 10 0 14" stroke="#ffb833" stroke-width="5" fill="none" stroke-linecap="round"/>`;
@@ -203,7 +226,7 @@
         g += `<path d="M62 104 C 100 80, 150 74, 230 86 M64 130 C 110 144, 180 136, 244 104" stroke="${c.skinDark}" stroke-width="3" fill="none" stroke-linecap="round" opacity=".35"/>`;
         g += `<path d="M70 102 C 96 84, 124 76, 156 76" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" opacity=".3"/>`;
         g += spots(9, { x0: 70, x1: 240, y0: 80, y1: 142 });
-        if (food.cook !== 'raw') g += `<path d="M94 94 C 130 74, 192 76, 228 90 C 198 106, 136 110, 94 94Z" fill="${c.inside}"/><path d="M110 92 c24 -10 68 -12 100 -4" stroke="${c.light}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".85"/>`;
+        if (food.cook !== 'raw') g += `<path d="M88 96 C 126 70, 198 72, 236 90 C 206 112, 130 118, 88 96Z" fill="${c.inside}"/><path d="M110 92 c24 -10 68 -12 100 -4" stroke="${c.light}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".85"/>`;
         if (c.crisp) g += `<path d="${SPINDLE}" fill="none" stroke="${c.edge}" stroke-width="5" stroke-dasharray="12 10" opacity=".55"/>`;
         break; }
       case 'halves':
@@ -255,7 +278,7 @@
 
   function foodSVG(food, { sticker = false } = {}) {
     const s = sticker ? 1 : Math.max(0, 1 - food.bites * 0.27);
-    const toppings = sticker ? '' : food.toppings.map((t, i) => toppingSVG(t, food.form, String(i))).join('');
+    const toppings = sticker ? '' : [...food.toppings].sort((a, b) => (a === 'toasted' ? -1 : 0) - (b === 'toasted' ? -1 : 0)).map((t, i) => toppingSVG(t, food.form, String(i))).join('');
     return `<svg viewBox="${sticker ? '30 40 240 150' : '0 0 300 200'}" xmlns="http://www.w3.org/2000/svg">
       <g transform="translate(150 112) scale(${s}) translate(-150 -112)">${foodBody(food)}${toppings}</g>
     </svg>`;
@@ -376,6 +399,7 @@
     clearInterval(pTimer);
     el.overlay.className = ''; el.overlay.innerHTML = '';
     tool.run(S.food);
+    if (['oven', 'pan', 'micro'].includes(tool.id)) S.food.toppings = S.food.toppings.map(t => t === 'marshmallow' ? 'toasted' : t);
     el.food.classList.remove('hide');
     renderFood('pop');
     if (tool.after) FX.play(tool.after); else FX.play('pop');
@@ -455,7 +479,7 @@
   }
 
   function reactionFor(f) {
-    const sweet = f.toppings.some(t => ['marshmallow', 'honey', 'sprinkles'].includes(t));
+    const sweet = f.toppings.some(t => ['marshmallow', 'toasted', 'honey', 'sprinkles'].includes(t));
     if (sweet) return { mouth: 'grin', emoji: '❤️', sound: 'hooray', particle: 'heart' };
     if (f.cook === 'raw') return { mouth: 'silly', emoji: '😆', sound: 'yum', particle: 'star' };
     if (f.toppings.length >= 3) return { mouth: 'grin', emoji: '🤩', sound: 'hooray', particle: 'heart' };

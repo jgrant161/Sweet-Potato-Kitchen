@@ -16,7 +16,9 @@ There are no rules, timers, scores or wrong answers. Every tap makes something f
 4. **Tap the hungry friend** (or drag the food to their mouth). Three bites and it's gone, with a happy reaction.
 5. Every new kind of dish you feed them earns a **sticker** on the shelf at the top.
 
-Three friends to feed: Pip, Momo the monster, and Tater the sweet potato. Tap a face at the top to switch.
+Four friends to feed: Chef (modeled on the game's biggest sweet potato fan, in his navy golf shirt), Pip, Momo the monster, and Tater the sweet potato. Tap a face at the top to switch.
+
+**Texas Roadhouse mode:** bake a whole potato, add marshmallows, then bake it again. The marshmallows melt into a golden toasted blanket, with a couple of spares on the side of the plate.
 The speaker button turns sound on and off. All sounds are generated in the browser, so there are no audio files to download.
 
 The game remembers the chosen friend, sound setting and stickers on each device.
