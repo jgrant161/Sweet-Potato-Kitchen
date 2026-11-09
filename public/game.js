@@ -580,6 +580,7 @@
       setTimeout(() => { FX.play('hello'); flash(el.character, 'bounce', 700); say('👋', 1000); }, 250);
     };
     splash.addEventListener('click', start);
+    $('#homebtn').addEventListener('click', () => { FX.init(); FX.play('tap'); splash.classList.remove('gone'); });
     splash.addEventListener('touchend', (e) => { e.preventDefault(); start(); }, { passive: false });
 
     renderCharacter(); renderFood(); renderShelf(); scheduleNudge();
