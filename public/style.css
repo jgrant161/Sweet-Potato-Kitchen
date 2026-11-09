@@ -350,3 +350,9 @@ svg { display: block; }
 #play:active { transform: translateY(6px); box-shadow: 0 2px 0 #5fa385; }
 @keyframes splashBob { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
 @keyframes playPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+.splash-card .more { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; justify-content: center; }
+.tile { display: grid; justify-items: center; gap: 2px; width: 88px; padding: 8px 6px 6px; border-radius: 22px; text-decoration: none; color: #fff; font-weight: 800; font-size: 16px; box-shadow: 0 6px 0 rgba(0,0,0,.18); transition: transform .12s, box-shadow .12s; }
+.tile svg { width: 48px; height: 48px; }
+.tile.train { background: #5fb0ee; } .tile.band { background: #c23b4a; } .tile.fish { background: #f08a2a; }
+.tile:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.18); }

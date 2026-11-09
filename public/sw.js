@@ -1,7 +1,7 @@
 // Offline support: cache the game on first visit so it still opens with a weak signal.
 // Network-first so updates arrive as soon as a device is online; falls back to the cache otherwise.
-const CACHE = 'spk-v3';
-const ASSETS = ['./', './index.html', './style.css', './game.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
+const CACHE = 'spk-v5';
+const ASSETS = ['./', './index.html', './style.css', './game.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './train/', './train/index.html', './music/', './music/index.html', './fish/', './fish/index.html'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

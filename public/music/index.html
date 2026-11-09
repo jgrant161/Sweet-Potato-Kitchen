@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Harrison's Monster Band</title>
+<meta name="theme-color" content="#3b2a5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../icon-192.png">
+<script>
+  (function () {
+    var set = function () { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); };
+    set(); window.addEventListener('resize', set);
+    window.addEventListener('orientationchange', function () { setTimeout(set, 250); setTimeout(set, 600); });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', set);
+  })();
+</script>
+<style>
+  :root { --ink: #3b2a22; --cream: #fff6e8; --purple: #3b2a5a; --purple-2: #5a3f86; --wood: #c48a4f; --gold: #ffd56a; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--purple); }
+  body { font-family: "Baloo 2", "Arial Rounded MT Bold", "Nunito", system-ui, sans-serif; user-select: none; -webkit-user-select: none; touch-action: manipulation; overscroll-behavior: none; color: var(--ink); }
+  button { font: inherit; border: 0; background: none; padding: 0; cursor: pointer; color: inherit; }
+  svg { display: block; }
+  #app { position: relative; height: 100vh; height: var(--app-h, 100vh); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); overflow: hidden; }
+
+  #top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px 4px; }
+  .round { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,.92); box-shadow: 0 5px 0 rgba(0,0,0,.25); display: grid; place-items: center; color: var(--ink); }
+  .round svg { width: 28px; height: 28px; }
+  .round:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+  #mute .off { display: none; } #mute.muted .on { display: none; } #mute.muted .off { display: block; }
+  #tempo { display: flex; gap: 8px; align-items: center; background: rgba(255,255,255,.14); border-radius: 30px; padding: 4px; }
+  #tempo button { width: 48px; height: 44px; border-radius: 22px; font-size: 24px; display: grid; place-items: center; opacity: .55; transition: transform .15s, opacity .15s; }
+  #tempo button.on { opacity: 1; background: rgba(255,255,255,.92); box-shadow: 0 3px 0 rgba(0,0,0,.25); transform: scale(1.05); }
+
+  /* ---------- stage ---------- */
+  #stage { position: relative; margin: 6px 10px; border-radius: 28px; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 20%, #7a5bb0 0, var(--purple-2) 40%, var(--purple) 100%); box-shadow: inset 0 -10px 0 rgba(0,0,0,.2); }
+  #stage::before { /* curtains */ content: ""; position: absolute; inset: 0 0 auto 0; height: 22%; background: repeating-linear-gradient(90deg, #c23b4a 0 36px, #a52f3c 36px 72px); border-radius: 0 0 40% 40% / 0 0 100% 100%; box-shadow: 0 8px 0 rgba(0,0,0,.25); }
+  #stage::after { /* floor */ content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 34%; background: repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 2px, transparent 2px 60px), linear-gradient(#d9a066, var(--wood)); }
+  .spot { position: absolute; width: 1px; height: 1px; }
+  .light { position: absolute; left: 50%; bottom: 0; width: 160px; height: 200%; transform: translateX(-50%); background: linear-gradient(rgba(255,240,180,.0), rgba(255,240,180,.22)); clip-path: polygon(45% 0, 55% 0, 100% 100%, 0 100%); pointer-events: none; opacity: 0; transition: opacity .4s; }
+  .spot.on .light { opacity: 1; }
+  .monster { position: absolute; left: 50%; bottom: 0; width: var(--w, 120px); transform: translateX(-50%); transform-origin: 50% 100%; transition: transform .15s; }
+  .monster svg { width: 100%; height: auto; overflow: visible; }
+  .monster.hit { animation: hit .22s ease-out; }
+  .monster.beat { animation: beat .28s ease-out; }
+  .monster .mouth-open { display: none; }
+  .monster.sing .mouth-open { display: block; } .monster.sing .mouth-closed { display: none; }
+  .monster .arm { transform-origin: var(--ax, 50%) var(--ay, 50%); }
+  .monster.hit .arm { animation: strum .22s ease-out; }
+  .stage-monster { z-index: 2; cursor: pointer; }
+  .stage-monster.enter { animation: enter .6s cubic-bezier(.3,1.5,.5,1); }
+  .stage-monster.leave { animation: leave .4s ease-in forwards; }
+  .shadow { position: absolute; left: 50%; bottom: -6px; width: 70%; height: 14px; transform: translateX(-50%); border-radius: 50%; background: rgba(0,0,0,.25); }
+  #empty { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  #empty .hint { font-size: clamp(36px, 10vw, 72px); animation: bob 1.4s ease-in-out infinite; filter: drop-shadow(0 6px 0 rgba(0,0,0,.3)); }
+  #stage.busy #empty { display: none; }
+  #confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .cf { position: absolute; top: -12px; width: 10px; height: 14px; border-radius: 3px; animation: fall 2.2s linear forwards; }
+
+  /* ---------- lineup ---------- */
+  #lineup { display: flex; gap: 10px; padding: 8px 12px 12px; overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
+  #lineup::-webkit-scrollbar { display: none; }
+  .card { flex: 0 0 auto; width: 96px; height: 118px; border-radius: 26px; background: var(--cream); box-shadow: 0 6px 0 rgba(0,0,0,.3); display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 8px 6px 6px; transition: transform .15s, box-shadow .15s; position: relative; }
+  .card .monster { position: static; transform: none; width: 72px; }
+  .card:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.3); }
+  .card.on { background: var(--gold); outline: 4px solid #fff; }
+  .card.on::after { content: "♪"; position: absolute; top: 6px; right: 10px; font-size: 20px; color: var(--ink); animation: bob 1s ease-in-out infinite; }
+  .card .inst { width: 34px; height: 34px; }
+  .card .inst svg { width: 100%; height: 100%; }
+
+  @keyframes hit { 0% { transform: translateX(-50%) scale(1); } 40% { transform: translateX(-50%) scale(1.08, .92); } 100% { transform: translateX(-50%) scale(1); } }
+  @keyframes beat { 0% { transform: translateX(-50%) translateY(0); } 40% { transform: translateX(-50%) translateY(-10px); } 100% { transform: translateX(-50%) translateY(0); } }
+  @keyframes strum { 0% { transform: rotate(0); } 40% { transform: rotate(-18deg); } 100% { transform: rotate(0); } }
+  @keyframes enter { 0% { transform: translateX(-50%) translateY(120%) scale(.6); } 100% { transform: translateX(-50%) translateY(0) scale(1); } }
+  @keyframes leave { to { transform: translateX(-50%) translateY(130%) scale(.6); opacity: 0; } }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: .8; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <a id="home" class="round" href="../" aria-label="Back to the kitchen"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z" fill="currentColor"/></svg></a>
+    <div id="tempo" aria-label="Tempo"><button data-bpm="80" aria-label="Slow">🐢</button><button data-bpm="104" class="on" aria-label="Medium">🚶</button><button data-bpm="132" aria-label="Fast">🐇</button></div>
+    <button id="everyone" class="round" aria-label="Everyone play!"><svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#ffd56a" stroke="#c98a1a" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+    <button id="mute" class="round" aria-label="Sound on or off">
+      <svg class="on" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <svg class="off" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+  <section id="stage"><div id="empty"><div class="hint">👇</div></div><div id="confetti"></div></section>
+  <nav id="lineup" aria-label="Monsters"></nav>
+</div>
+<script>
+(() => {
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+const rand = (a, b) => a + Math.random() * (b - a);
+const store = { get(k, d) { try { const v = localStorage.getItem('band.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set(k, v) { try { localStorage.setItem('band.' + k, JSON.stringify(v)); } catch {} } };
+
+/* ================= music theory: everything lives in C major so any mix sounds good ================= */
+const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
+// 4-bar progression: C  Am  F  G   (root midi, chord tones as semitone offsets)
+const CHORDS = [
+  { root: 48, tones: [0, 4, 7] },   // C
+  { root: 45, tones: [0, 3, 7] },   // Am
+  { root: 41, tones: [0, 4, 7] },   // F
+  { root: 43, tones: [0, 4, 7] },   // G
+];
+const STEPS = 64;                     // 4 bars of 16ths
+const chordAt = (step) => CHORDS[Math.floor(step / 16) % 4];
+
+/* ================= audio ================= */
+const AU = {
+  ctx: null, master: null, muted: store.get('muted', false), bpm: store.get('bpm', 104),
+  init() {
+    if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    this.ctx = new AC(); this.master = this.ctx.createGain(); this.master.gain.value = this.muted ? 0 : .9;
+    const comp = this.ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
+    this.master.connect(comp).connect(this.ctx.destination);
+  },
+  setMuted(m) { this.muted = m; if (this.master) this.master.gain.setTargetAtTime(m ? 0 : .9, this.ctx.currentTime, .02); },
+  env(t, a, d, s = 0, r = .05, peak = 1) { const g = this.ctx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(Math.max(.0001, peak * s), t + a + d); g.gain.exponentialRampToValueAtTime(.0001, t + a + d + r); return g; },
+  osc(type, f, t, dur, detune = 0) { const o = this.ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); o.detune.value = detune; o.start(t); o.stop(t + dur + .3); return o; },
+  noiseBuf() { if (this._nb) return this._nb; const n = this.ctx.sampleRate * 1.5, b = this.ctx.createBuffer(1, n, this.ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; return this._nb = b; },
+  noise(t, dur, { freq = 2000, q = 1, type = 'bandpass', vol = .3, a = .005, d = .08 } = {}) { const s = this.ctx.createBufferSource(); s.buffer = this.noiseBuf(); const f = this.ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q; const g = this.env(t, a, d, 0, .02, vol); s.connect(f).connect(g).connect(this.master); s.start(t); s.stop(t + dur + .2); },
+  /* ---- instruments ---- */
+  kick(t) { const o = this.osc('sine', 150, t, .35); o.frequency.exponentialRampToValueAtTime(42, t + .18); const g = this.env(t, .003, .3, 0, .05, .9); o.connect(g).connect(this.master); },
+  snare(t) { this.noise(t, .25, { freq: 1800, q: .7, vol: .35, d: .15 }); const o = this.osc('triangle', 210, t, .2); const g = this.env(t, .002, .12, 0, .02, .35); o.connect(g).connect(this.master); },
+  hat(t, open) { this.noise(t, open ? .3 : .07, { freq: 7000, type: 'highpass', vol: .16, d: open ? .25 : .04 }); },
+  bass(t, note, len) { const f = midi(note); const o = this.osc('sawtooth', f, t, len), o2 = this.osc('triangle', f, t, len); const lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, t); lp.frequency.exponentialRampToValueAtTime(180, t + len); lp.Q.value = 2; const g = this.env(t, .01, len * .8, .3, .08, .4); o.connect(lp); o2.connect(lp); lp.connect(g).connect(this.master); },
+  bell(t, note) { const f = midi(note); const g = this.env(t, .003, 1.2, 0, .2, .3); const o = this.osc('sine', f, t, 1.4); const o2 = this.osc('sine', f * 2.76, t, 1.4); const g2 = this.ctx.createGain(); g2.gain.setValueAtTime(.25, t); g2.gain.exponentialRampToValueAtTime(.001, t + .5); o.connect(g); o2.connect(g2).connect(g); g.connect(this.master); },
+  pad(t, notes, len) { const g = this.env(t, .35, len - .5, .7, .5, .11); const lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = .5; for (const n of notes) for (const dt of [-7, 7]) this.osc('sawtooth', midi(n), t, len, dt).connect(lp); lp.connect(g).connect(this.master); },
+  pluck(t, note) { const f = midi(note); const o = this.osc('triangle', f, t, .5); const hp = this.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300; const g = this.env(t, .002, .32, 0, .05, .35); o.connect(hp).connect(g).connect(this.master); const o2 = this.osc('square', f * 2, t, .15); const g2 = this.env(t, .001, .05, 0, .02, .08); o2.connect(g2).connect(this.master); },
+  shaker(t, accent) { this.noise(t, .12, { freq: 5000, q: 1.2, vol: accent ? .22 : .12, a: .01, d: .07 }); },
+  clave(t) { const o = this.osc('sine', 1800, t, .1); const g = this.env(t, .001, .07, 0, .02, .3); o.connect(g).connect(this.master); },
+  voice(t, note, len) { const f = midi(note); const o = this.osc('sawtooth', f, t, len); const lfo = this.osc('sine', 5.5, t, len); const lg = this.ctx.createGain(); lg.gain.value = 6; lfo.connect(lg).connect(o.detune);
+    const g = this.env(t, .12, len - .3, .8, .25, .22); const f1 = this.ctx.createBiquadFilter(), f2 = this.ctx.createBiquadFilter(); f1.type = 'bandpass'; f1.frequency.value = 400; f1.Q.value = 5; f2.type = 'bandpass'; f2.frequency.value = 800; f2.Q.value = 6;
+    const m = this.ctx.createGain(); m.gain.value = 1.4; o.connect(f1).connect(m); o.connect(f2).connect(m); m.connect(g).connect(this.master); },
+  horn(t, notes, len) { const g = this.env(t, .03, len * .7, .5, .1, .18); const lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(600, t); lp.frequency.exponentialRampToValueAtTime(2200, t + .08); lp.frequency.exponentialRampToValueAtTime(900, t + len); for (const n of notes) { this.osc('sawtooth', midi(n), t, len, 4).connect(lp); this.osc('square', midi(n), t, len, -4).connect(lp); } lp.connect(g).connect(this.master); },
+};
+
+/* ================= monsters ================= */
+// each monster: look + a part(step) => list of events; events are played by AU and animate the monster
+const PENTA = [60, 62, 64, 67, 69, 72, 74, 76]; // C D E G A C D E
+const MONSTERS = [
+  { id: 'boom', name: 'Boom', color: '#e35d5d', shape: 'round', eyes: 2, horns: 'nubs', inst: 'drum',
+    part(s) { const b = s % 16, bar = Math.floor(s / 16); const ev = []; if (b === 0 || b === 8 || (bar % 2 === 1 && b === 10)) ev.push(['kick']); if (b === 4 || b === 12) ev.push(['snare']); if (b % 2 === 0) ev.push(['hat', b === 14]); return ev; } },
+  { id: 'rumble', name: 'Rumble', color: '#7a5bb0', shape: 'tall', eyes: 1, horns: 'antenna', inst: 'bass',
+    part(s) { const b = s % 16, c = chordAt(s); const map = { 0: 0, 6: 0, 8: 7, 10: 0, 14: 12 }; return b in map ? [['bass', c.root - 12 + map[b], b === 0 || b === 8 ? .5 : .25]] : []; } },
+  { id: 'twinkle', name: 'Twinkle', color: '#ffd56a', shape: 'star', eyes: 2, horns: 'none', inst: 'bells',
+    part(s) { const bar = Math.floor(s / 16), b = s % 16; const lines = [[[0, 76], [4, 79], [6, 81], [8, 79], [12, 76]], [[0, 72], [4, 76], [8, 74], [10, 72], [12, 69]], [[0, 77], [4, 81], [6, 84], [8, 81], [12, 77]], [[0, 79], [4, 83], [8, 81], [10, 79], [12, 74], [14, 76]]]; const hit = lines[bar % 4].find(x => x[0] === b); return hit ? [['bell', hit[1]]] : []; } },
+  { id: 'fuzz', name: 'Fuzz', color: '#7fc3a3', shape: 'blob', eyes: 3, horns: 'fluff', inst: 'keys',
+    part(s) { if (s % 16 !== 0) return []; const c = chordAt(s); return [['pad', c.tones.map(x => c.root + 12 + x).concat([c.root + 24]), 16]]; } },
+  { id: 'pluck', name: 'Pluck', color: '#ff9a3c', shape: 'round', eyes: 2, horns: 'horns', inst: 'uke',
+    part(s) { if (s % 2 !== 0) return []; const c = chordAt(s); const arp = [0, 1, 2, 3, 2, 1, 0, 1]; const tones = c.tones.concat([12]); return [['pluck', c.root + 12 + tones[arp[(s % 16) / 2]]]]; } },
+  { id: 'shaky', name: 'Shaky', color: '#3bb0c9', shape: 'tall', eyes: 2, horns: 'ears', inst: 'maracas',
+    part(s) { const b = s % 16; const ev = []; if (b % 2 === 1 || b % 4 === 2) ev.push(['shaker', b % 4 === 2]); if (b === 3 || b === 11) ev.push(['clave']); return ev; } },
+  { id: 'lulu', name: 'Lulu', color: '#ff7ab6', shape: 'blob', eyes: 2, horns: 'bow', inst: 'mic',
+    part(s) { const b = s % 16; if (b !== 0 && b !== 8) return []; const c = chordAt(s); const n = b === 0 ? c.root + 24 + c.tones[1] : c.root + 24 + c.tones[2]; return [['voice', n, 8]]; } },
+  { id: 'honk', name: 'Honk', color: '#5fb0ee', shape: 'round', eyes: 1, horns: 'nubs', inst: 'trumpet',
+    part(s) { const bar = Math.floor(s / 16), b = s % 16; if (bar % 2 === 0) return []; const c = chordAt(s); if (b === 0 || b === 3 || b === 6) return [['horn', [c.root + 12 + c.tones[1], c.root + 12 + c.tones[2]], b === 6 ? 4 : 2]]; return []; } },
+];
+const STEP_LEN = (ev) => ({ bass: 2, pad: 16, voice: 8, horn: 3 })[ev[0]] || 1;
+
+function monsterSVG(m) {
+  const c = m.color, dark = shade(c, -28), light = shade(c, 30);
+  let body = '';
+  if (m.shape === 'round') body = `<ellipse cx="60" cy="78" rx="46" ry="44" fill="${c}"/><ellipse cx="46" cy="64" rx="18" ry="12" fill="${light}" opacity=".35"/>`;
+  if (m.shape === 'tall') body = `<rect x="22" y="22" width="76" height="100" rx="34" fill="${c}"/><ellipse cx="46" cy="50" rx="14" ry="10" fill="${light}" opacity=".35"/>`;
+  if (m.shape === 'blob') body = `<path d="M14 100 C 10 50, 40 28, 60 30 C 84 28, 112 52, 106 100 C 104 118, 16 118, 14 100 Z" fill="${c}"/><ellipse cx="44" cy="58" rx="14" ry="10" fill="${light}" opacity=".35"/>`;
+  if (m.shape === 'star') body = `<path d="M60 18 L74 52 L110 56 L82 80 L92 116 L60 98 L28 116 L38 80 L10 56 L46 52 Z" fill="${c}" stroke="${dark}" stroke-width="3" stroke-linejoin="round"/>`;
+  let horns = '';
+  if (m.horns === 'horns') horns = `<path d="M34 36 L18 6 L50 26z M86 36 L102 6 L70 26z" fill="#fff0a8" stroke="#d9b34a" stroke-width="3" stroke-linejoin="round"/>`;
+  if (m.horns === 'nubs') horns = `<circle cx="36" cy="36" r="9" fill="${dark}"/><circle cx="84" cy="36" r="9" fill="${dark}"/>`;
+  if (m.horns === 'antenna') horns = `<path d="M60 22 q-4 -20 10 -22" stroke="${dark}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="71" cy="0" r="7" fill="#ffd56a"/>`;
+  if (m.horns === 'fluff') horns = `<circle cx="40" cy="30" r="10" fill="${c}"/><circle cx="58" cy="22" r="12" fill="${c}"/><circle cx="78" cy="30" r="10" fill="${c}"/>`;
+  if (m.horns === 'ears') horns = `<ellipse cx="28" cy="26" rx="10" ry="16" fill="${c}"/><ellipse cx="92" cy="26" rx="10" ry="16" fill="${c}"/><ellipse cx="28" cy="28" rx="5" ry="9" fill="#ff9aa6"/><ellipse cx="92" cy="28" rx="5" ry="9" fill="#ff9aa6"/>`;
+  if (m.horns === 'bow') horns = `<path d="M60 28 l-22 -12 v24z M60 28 l22 -12 v24z" fill="#ff4d7d"/><circle cx="60" cy="28" r="5" fill="#ffd1e0"/>`;
+  const eyeY = m.shape === 'tall' ? 56 : m.shape === 'star' ? 62 : 68;
+  let eyes = '';
+  const eye = (x, r) => `<circle cx="${x}" cy="${eyeY}" r="${r}" fill="#fff"/><circle cx="${x + 1}" cy="${eyeY + 1}" r="${r * .45}" fill="#2b1d16"/>`;
+  if (m.eyes === 1) eyes = eye(60, 14); if (m.eyes === 2) eyes = eye(45, 10) + eye(75, 10); if (m.eyes === 3) eyes = eye(42, 8) + eye(60, 9) + eye(78, 8);
+  const mouthY = eyeY + 22;
+  const mouth = `<g class="mouth-closed"><path d="M${48} ${mouthY} Q60 ${mouthY + 12} 72 ${mouthY}" stroke="#5a1d1d" stroke-width="4" fill="none" stroke-linecap="round"/></g><g class="mouth-open"><ellipse cx="60" cy="${mouthY + 6}" rx="12" ry="11" fill="#5a1d1d"/><ellipse cx="60" cy="${mouthY + 12}" rx="6" ry="4" fill="#ff7a8a"/></g>`;
+  const cheeks = `<circle cx="34" cy="${mouthY - 4}" r="6" fill="#ff9aa6" opacity=".5"/><circle cx="86" cy="${mouthY - 4}" r="6" fill="#ff9aa6" opacity=".5"/>`;
+  const feet = `<ellipse cx="42" cy="122" rx="14" ry="7" fill="${dark}"/><ellipse cx="78" cy="122" rx="14" ry="7" fill="${dark}"/>`;
+  return `<svg viewBox="-10 -10 140 140" xmlns="http://www.w3.org/2000/svg">${feet}${horns}${body}${eyes}${cheeks}${mouth}<g class="arm" style="--ax:100px;--ay:80px">${instSVG(m.inst)}</g></svg>`;
+}
+function instSVG(k) {
+  switch (k) {
+    case 'drum': return `<g transform="translate(76 86)"><ellipse cx="0" cy="22" rx="26" ry="8" fill="#c94848"/><rect x="-26" y="2" width="52" height="20" fill="#e35d5d"/><ellipse cx="0" cy="2" rx="26" ry="8" fill="#fff6e8"/><path d="M-20 -14 l14 14 M20 -14 l-14 14" stroke="#7a4a2a" stroke-width="4" stroke-linecap="round"/><circle cx="-20" cy="-14" r="4" fill="#fff"/><circle cx="20" cy="-14" r="4" fill="#fff"/></g>`;
+    case 'bass': return `<g transform="translate(88 70) rotate(-25)"><rect x="-5" y="-50" width="10" height="60" rx="3" fill="#7a4a2a"/><path d="M-16 10 c-14 0 -16 24 -4 30 c-6 10 10 18 20 10 c14 6 24 -8 14 -18 c10 -8 2 -24 -10 -22z" fill="#3b2a5a"/><circle cx="2" cy="26" r="5" fill="#ffd56a"/><path d="M-2 -46 v70 M2 -46 v70" stroke="#ddd" stroke-width="1"/></g>`;
+    case 'bells': return `<g transform="translate(70 96)"><rect x="-30" y="-6" width="60" height="14" rx="4" fill="#7a4a2a"/>${[-24, -12, 0, 12, 24].map((x, i) => `<rect x="${x - 5}" y="${-22 - i * 2}" width="10" height="${22 + i * 2}" rx="3" fill="${['#e35d5d', '#ff9a3c', '#7fc3a3', '#3bb0c9', '#b58cf2'][i]}"/>`).join('')}<circle cx="34" cy="-30" r="5" fill="#fff"/><path d="M34 -30 l10 18" stroke="#7a4a2a" stroke-width="3" stroke-linecap="round"/></g>`;
+    case 'keys': return `<g transform="translate(72 98)"><rect x="-34" y="-12" width="68" height="22" rx="5" fill="#2b2a33"/><rect x="-30" y="-8" width="60" height="14" fill="#fff"/>${[-24, -14, -4, 6, 16].map(x => `<rect x="${x}" y="-8" width="6" height="8" fill="#2b2a33"/>`).join('')}</g>`;
+    case 'uke': return `<g transform="translate(84 74) rotate(-30)"><rect x="-4" y="-40" width="8" height="44" rx="3" fill="#7a4a2a"/><circle cx="0" cy="18" r="18" fill="#d9a066"/><circle cx="0" cy="30" r="20" fill="#d9a066"/><circle cx="0" cy="20" r="6" fill="#3b2a22"/><path d="M-3 -36 v62 M3 -36 v62" stroke="#fff" stroke-width="1"/></g>`;
+    case 'maracas': return `<g transform="translate(92 62) rotate(20)"><rect x="-3" y="0" width="6" height="30" rx="3" fill="#7a4a2a"/><ellipse cx="0" cy="-10" rx="12" ry="14" fill="#e35d5d"/><circle cx="-4" cy="-14" r="2" fill="#ffd56a"/><circle cx="4" cy="-8" r="2" fill="#ffd56a"/></g><g transform="translate(26 62) rotate(-20)"><rect x="-3" y="0" width="6" height="30" rx="3" fill="#7a4a2a"/><ellipse cx="0" cy="-10" rx="12" ry="14" fill="#3bb0c9"/><circle cx="-4" cy="-14" r="2" fill="#fff"/><circle cx="4" cy="-8" r="2" fill="#fff"/></g>`;
+    case 'mic': return `<g transform="translate(92 76) rotate(15)"><rect x="-4" y="0" width="8" height="34" rx="4" fill="#4a4f5a"/><circle cx="0" cy="-6" r="12" fill="#9aa3ad"/><path d="M-8 -10 h16 M-10 -4 h20 M-8 2 h16" stroke="#4a4f5a" stroke-width="1.5"/></g>`;
+    case 'trumpet': return `<g transform="translate(70 92) rotate(-10)"><rect x="-26" y="-4" width="50" height="8" rx="4" fill="#ffd56a"/><path d="M24 -14 l16 -6 v40 l-16 -6z" fill="#ffd56a" stroke="#c98a1a" stroke-width="2"/><rect x="-14" y="-12" width="5" height="10" fill="#c98a1a"/><rect x="-4" y="-12" width="5" height="10" fill="#c98a1a"/><rect x="6" y="-12" width="5" height="10" fill="#c98a1a"/></g>`;
+  }
+  return '';
+}
+function shade(hex, amt) { const n = parseInt(hex.slice(1), 16); const r = Math.max(0, Math.min(255, (n >> 16) + amt)), g = Math.max(0, Math.min(255, (n >> 8 & 255) + amt)), b = Math.max(0, Math.min(255, (n & 255) + amt)); return `rgb(${r},${g},${b})`; }
+
+/* ================= stage + lineup ================= */
+const stage = $('#stage'), lineup = $('#lineup');
+const SPOTS = [ // percent positions, back row then front row
+  { x: 22, y: 36, w: 100 }, { x: 50, y: 34, w: 100 }, { x: 78, y: 36, w: 100 },
+  { x: 32, y: 12, w: 125 }, { x: 60, y: 10, w: 125 }, { x: 86, y: 14, w: 120 },
+];
+const onStage = new Map(); // id -> { spotIndex, el }
+const cards = new Map();
+
+function buildSpots() {
+  SPOTS.forEach((s, i) => { const d = document.createElement('div'); d.className = 'spot'; d.dataset.i = i; d.style.left = s.x + '%'; d.style.bottom = s.y + '%'; d.innerHTML = '<div class="light"></div>'; stage.appendChild(d); });
+}
+function buildLineup() {
+  for (const m of MONSTERS) {
+    const b = document.createElement('button'); b.className = 'card'; b.setAttribute('aria-label', m.name);
+    b.innerHTML = `<div class="monster">${monsterSVG(m)}</div><div class="inst"><svg viewBox="40 40 80 80">${instSVG(m.inst)}</svg></div>`;
+    b.addEventListener('click', () => toggle(m));
+    lineup.appendChild(b); cards.set(m.id, b);
+  }
+}
+function freeSpot() { const used = new Set([...onStage.values()].map(v => v.spot)); for (let i = 0; i < SPOTS.length; i++) if (!used.has(i)) return i; return -1; }
+function toggle(m) {
+  AU.init();
+  if (onStage.has(m.id)) { remove(m); return; }
+  let spot = freeSpot();
+  if (spot < 0) { const oldest = onStage.keys().next().value; spot = onStage.get(oldest).spot; remove(MONSTERS.find(x => x.id === oldest), true); }
+  place(m, spot);
+}
+function place(m, spot) {
+  const s = SPOTS[spot]; const holder = stage.children[spot + 2];
+  const d = document.createElement('div'); d.className = 'monster stage-monster enter'; d.style.setProperty('--w', s.w + 'px'); d.dataset.id = m.id;
+  d.innerHTML = `<div class="shadow"></div>${monsterSVG(m)}`;
+  d.addEventListener('click', () => { solo(m, d); });
+  holder.appendChild(d); holder.classList.add('on');
+  onStage.set(m.id, { spot, el: d });
+  cards.get(m.id).classList.add('on');
+  stage.classList.add('busy');
+  pop(); ensureRunning();
+}
+function remove(m, silent) {
+  const r = onStage.get(m.id); if (!r) return;
+  onStage.delete(m.id); cards.get(m.id).classList.remove('on');
+  const holder = r.el.parentElement; holder.classList.remove('on');
+  r.el.classList.remove('enter'); r.el.classList.add('leave'); setTimeout(() => r.el.remove(), 400);
+  if (!silent) boing();
+  if (onStage.size === 0) stage.classList.remove('busy');
+}
+function solo(m, el) { // tap a monster on stage: it does a little flourish right now
+  AU.init(); const t = AU.ctx.currentTime + .02; el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit');
+  const c = chordAt(SEQ.step);
+  switch (m.inst) {
+    case 'drum': AU.kick(t); AU.snare(t + .12); AU.kick(t + .24); AU.snare(t + .3); break;
+    case 'bass': AU.bass(t, c.root - 12, .2); AU.bass(t + .15, c.root - 5, .2); AU.bass(t + .3, c.root, .4); break;
+    case 'bells': [0, .1, .2, .3].forEach((d, i) => AU.bell(t + d, PENTA[(i * 2 + 2) % PENTA.length] + 12)); break;
+    case 'keys': AU.pad(t, c.tones.map(x => c.root + 24 + x), 1.2); break;
+    case 'uke': [0, .08, .16, .24].forEach((d, i) => AU.pluck(t + d, c.root + 12 + c.tones.concat([12])[i])); break;
+    case 'maracas': [0, .1, .2, .25, .3].forEach(d => AU.shaker(t + d, true)); break;
+    case 'mic': AU.voice(t, c.root + 24 + c.tones[2], 1.2); el.classList.add('sing'); setTimeout(() => el.classList.remove('sing'), 1200); break;
+    case 'trumpet': AU.horn(t, [c.root + 12 + c.tones[2], c.root + 24], 1); break;
+  }
+}
+function pop() { if (!AU.ctx) return; const t = AU.ctx.currentTime; const o = AU.osc('sine', 500, t, .2); o.frequency.exponentialRampToValueAtTime(1000, t + .15); const g = AU.env(t, .005, .15, 0, .03, .2); o.connect(g).connect(AU.master); }
+function boing() { if (!AU.ctx) return; const t = AU.ctx.currentTime; const o = AU.osc('triangle', 400, t, .3); o.frequency.exponentialRampToValueAtTime(150, t + .25); const g = AU.env(t, .005, .25, 0, .03, .2); o.connect(g).connect(AU.master); }
+
+/* ================= sequencer (lookahead scheduler) ================= */
+const SEQ = { step: 0, nextTime: 0, timer: null, visual: [] };
+const stepDur = () => 60 / AU.bpm / 4;
+function ensureRunning() { if (SEQ.timer || !AU.ctx) return; SEQ.step = 0; SEQ.nextTime = AU.ctx.currentTime + .1; SEQ.timer = setInterval(tick, 25); requestAnimationFrame(animate); }
+function tick() {
+  if (onStage.size === 0) { clearInterval(SEQ.timer); SEQ.timer = null; return; }
+  while (SEQ.nextTime < AU.ctx.currentTime + .15) {
+    const s = SEQ.step, t = SEQ.nextTime;
+    for (const [id, r] of onStage) {
+      const m = MONSTERS.find(x => x.id === id);
+      const evs = m.part(s);
+      for (const ev of evs) { playEvent(ev, t, s); SEQ.visual.push({ t, id, ev }); }
+    }
+    if (s % 4 === 0) SEQ.visual.push({ t, id: '*beat*' });
+    if (s === 0 && onStage.size >= 5) SEQ.visual.push({ t, id: '*confetti*' });
+    SEQ.nextTime += stepDur(); SEQ.step = (SEQ.step + 1) % STEPS;
+  }
+}
+function playEvent(ev, t, s) {
+  const d = stepDur();
+  switch (ev[0]) {
+    case 'kick': AU.kick(t); break; case 'snare': AU.snare(t); break; case 'hat': AU.hat(t, ev[1]); break;
+    case 'bass': AU.bass(t, ev[1], ev[2] * 4 * d); break;
+    case 'bell': AU.bell(t, ev[1]); break;
+    case 'pad': AU.pad(t, ev[1], ev[2] * d); break;
+    case 'pluck': AU.pluck(t, ev[1]); break;
+    case 'shaker': AU.shaker(t, ev[1]); break; case 'clave': AU.clave(t); break;
+    case 'voice': AU.voice(t, ev[1], ev[2] * d); break;
+    case 'horn': AU.horn(t, ev[1], ev[2] * d); break;
+  }
+}
+function animate() {
+  if (!SEQ.timer) return;
+  const now = AU.ctx.currentTime;
+  while (SEQ.visual.length && SEQ.visual[0].t <= now) {
+    const v = SEQ.visual.shift();
+    if (v.id === '*beat*') { for (const r of onStage.values()) { r.el.classList.remove('beat'); void r.el.offsetWidth; r.el.classList.add('beat'); } continue; }
+    if (v.id === '*confetti*') { confetti(); continue; }
+    const r = onStage.get(v.id); if (!r) continue;
+    r.el.classList.remove('hit'); void r.el.offsetWidth; r.el.classList.add('hit');
+    if (v.ev[0] === 'voice') { r.el.classList.add('sing'); setTimeout(() => r.el.classList.remove('sing'), v.ev[2] * stepDur() * 900); }
+  }
+  requestAnimationFrame(animate);
+}
+function confetti() { const box = $('#confetti'); const cols = ['#ff6b8a', '#ffd56a', '#7fc3a3', '#3bb0c9', '#b58cf2', '#ff9a3c']; for (let i = 0; i < 18; i++) { const c = document.createElement('div'); c.className = 'cf'; c.style.left = rand(0, 100) + '%'; c.style.background = cols[i % cols.length]; c.style.animationDelay = rand(0, .6) + 's'; c.style.transform = `rotate(${rand(0, 360)}deg)`; box.appendChild(c); setTimeout(() => c.remove(), 3000); } }
+
+/* ================= controls ================= */
+$('#everyone').addEventListener('click', () => { AU.init(); const pool = MONSTERS.filter(m => !onStage.has(m.id)).sort(() => Math.random() - .5); let i = 0; while (onStage.size < SPOTS.length && i < pool.length) { place(pool[i], freeSpot()); i++; } });
+const tempo = $('#tempo');
+tempo.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; AU.init(); AU.bpm = +b.dataset.bpm; store.set('bpm', AU.bpm); [...tempo.children].forEach(x => x.classList.toggle('on', x === b)); });
+[...tempo.children].forEach(x => x.classList.toggle('on', +x.dataset.bpm === AU.bpm));
+const muteBtn = $('#mute'); muteBtn.classList.toggle('muted', AU.muted);
+muteBtn.addEventListener('click', () => { AU.init(); AU.setMuted(!AU.muted); store.set('muted', AU.muted); muteBtn.classList.toggle('muted', AU.muted); });
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('pointerdown', () => AU.init(), { passive: true });
+document.addEventListener('visibilitychange', () => { if (document.hidden && AU.ctx) AU.ctx.suspend(); else if (AU.ctx) AU.ctx.resume(); });
+
+buildSpots(); buildLineup();
+})();
+</script>
+</body>
+</html>
