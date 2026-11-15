@@ -579,9 +579,9 @@
       FX.init(); splash.classList.add('gone');
       setTimeout(() => { FX.play('hello'); flash(el.character, 'bounce', 700); say('👋', 1000); }, 250);
     };
-    splash.addEventListener('click', start);
+    // a tap on a game tile is a normal link; anywhere else on the title screen starts the kitchen
+    splash.addEventListener('click', (e) => { if (e.target.closest('a')) return; start(); });
     $('#homebtn').addEventListener('click', () => { FX.init(); FX.play('tap'); splash.classList.remove('gone'); });
-    splash.addEventListener('touchend', (e) => { e.preventDefault(); start(); }, { passive: false });
 
     renderCharacter(); renderFood(); renderShelf(); scheduleNudge();
   }
